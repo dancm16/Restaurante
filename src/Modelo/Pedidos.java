@@ -9,6 +9,7 @@ public class Pedidos {
     private String sala;
     private String usuario;
     private String estado;
+    
 
     public Pedidos() {
     }
@@ -22,6 +23,7 @@ public class Pedidos {
         this.sala = sala;
         this.usuario = usuario;
         this.estado = estado;
+        
     }
 
     public int getId() {
@@ -87,6 +89,8 @@ public class Pedidos {
     public void setEstado(String estado) {
         this.estado = estado;
     }
+
+    
 
     
         

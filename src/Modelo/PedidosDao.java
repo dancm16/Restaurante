@@ -22,11 +22,15 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import javax.swing.filechooser.FileSystemView;
 
 public class PedidosDao {
+
+    public static String pdfPedido;
     Connection con;
     Conexion cn = new Conexion();
     PreparedStatement ps;
@@ -69,7 +73,7 @@ public class PedidosDao {
     }
     
     public int RegistrarPedido(Pedidos ped){
-        String sql = "INSERT INTO pedidos (id_sala, num_mesa, total, usuario) VALUES (?,?,?,?)";
+        String sql = "INSERT INTO pedidos (id_sala, num_mesa, total, usuario, fecha) VALUES (?,?,?,?,?)";
         try {
             con = cn.getConnection();
             ps = con.prepareStatement(sql);
@@ -77,6 +81,7 @@ public class PedidosDao {
             ps.setInt(2, ped.getNum_mesa());
             ps.setDouble(3, ped.getTotal());
             ps.setString(4, ped.getUsuario());
+            ps.setString(5,ped.getFecha());
             ps.execute();
         } catch (SQLException e) {
             System.out.println(e.toString());
@@ -128,9 +133,8 @@ public class PedidosDao {
            System.out.println(e.toString());
        }
        return Lista;
-   }
-    
-    public Pedidos verPedido(int id_pedido){
+   }   
+        public Pedidos verPedido(int id_pedido){
         Pedidos ped = new Pedidos();
        String sql = "SELECT p.*, s.nombre FROM pedidos p INNER JOIN salas s ON p.id_sala = s.id WHERE p.id = ?";
        try {
@@ -181,12 +185,13 @@ public class PedidosDao {
         try {
             FileOutputStream archivo;
             String url = FileSystemView.getFileSystemView().getDefaultDirectory().getPath();
-            File salida = new File(url + File.separator + "pedido.pdf");
+            File salida = new File(url + File.separator + "Boleta de Consumo MAMALUZ.pdf");
             archivo = new FileOutputStream(salida);
             Document doc = new Document();
             PdfWriter.getInstance(doc, archivo);
             doc.open();
-            Image img = Image.getInstance(getClass().getResource("/Img/logo.png"));
+            Image img = Image.getInstance(getClass().getResource("/Img/mmluzboleta.png"));
+            
             //Fecha
             String informacion = "SELECT p.*, s.nombre FROM pedidos p INNER JOIN salas s ON p.id_sala = s.id WHERE p.id = ?";
             try {
@@ -208,14 +213,73 @@ public class PedidosDao {
             PdfPTable Encabezado = new PdfPTable(4);
             Encabezado.setWidthPercentage(100);
             Encabezado.getDefaultCell().setBorder(0);
-            float[] columnWidthsEncabezado = new float[]{20f, 20f, 60f, 60f};
+            float[] columnWidthsEncabezado = new float[]{60f, 8f, 50f, 50f};
             Encabezado.setWidths(columnWidthsEncabezado);
             Encabezado.setHorizontalAlignment(Element.ALIGN_LEFT);
             Encabezado.addCell(img);
+            
+            Paragraph info = new Paragraph();
+            Font negrita = new Font(Font.FontFamily.TIMES_ROMAN, 12, Font.BOLD, BaseColor.RED);
+            info.add(Chunk.NEWLINE);
+            Date date = new Date();
+            info.add("Boleta: 0001" 
+                    +"\nAtendido: " + usuario 
+                    + "\nN° Pedido: " + id_pedido
+                    + "\nFecha: " + fechaPedido
+                    + "\nSala: " + sala
+                    + "\nN° Mesa: " + num_mesa
+                    +"\n\n\n\n\n\n\n");
+            
+            
+            String ruc= "10455161822" ;
+            String nombre = "MAMA LUZ";
+            String tel = "994061802";
+            String dir= "Urb Sol de Ica-Mza.F-Lote21";
+            String ra = "Mama Luz";
+            
+            
             Encabezado.addCell("");
+            Encabezado.addCell("\nRUC: "+ruc
+                    +"\nNombre: "+ nombre
+                    + "\nTeléfono: "+tel
+                    + "\nDirección: "+dir
+                    + "\nRazón Social: "+ra
+                    );
+            Encabezado.addCell(info);
+            doc.add(Encabezado);
+            
+                        
+            PdfPTable tablapro = new PdfPTable(4);
+            tablapro.setWidthPercentage(100);
+            tablapro.getDefaultCell().setBorder(0);
+            float[] columnpro = new float[]{10f, 50f, 15f, 15f};
+            tablapro.setWidths(columnpro);
+            tablapro.setHorizontalAlignment(Element.ALIGN_CENTER);
+            PdfPCell pro1 = new PdfPCell(new Phrase("Cant.", negrita));
+            PdfPCell pro2 = new PdfPCell(new Phrase("Plato.", negrita));
+            PdfPCell pro3 = new PdfPCell(new Phrase("P. unt.", negrita));
+            PdfPCell pro4 = new PdfPCell(new Phrase("P. Total", negrita));
+            pro1.setBorder(Rectangle.ALIGN_BASELINE);
+            pro2.setBorder(Rectangle.ALIGN_BASELINE);
+            pro3.setBorder(Rectangle.ALIGN_BASELINE);
+            pro4.setBorder(Rectangle.ALIGN_BASELINE);
+            pro1.setBackgroundColor(BaseColor.LIGHT_GRAY);
+            pro2.setBackgroundColor(BaseColor.LIGHT_GRAY);
+            pro3.setBackgroundColor(BaseColor.LIGHT_GRAY);
+            pro4.setBackgroundColor(BaseColor.LIGHT_GRAY);
+            tablapro.addCell(pro1);
+            tablapro.addCell(pro2);
+            tablapro.addCell(pro3);
+            tablapro.addCell(pro4);
+            //info.add
+            
+            
             //info empresa
             String config = "SELECT * FROM config";
             String mensaje = "";
+            
+            
+            
             try {
                 con = cn.getConnection();
                 ps = con.prepareStatement(config);
@@ -231,41 +295,11 @@ public class PedidosDao {
             } catch (SQLException e) {
                 System.out.println(e.toString());
             }
-            //
-            Paragraph info = new Paragraph();
-            Font negrita = new Font(Font.FontFamily.TIMES_ROMAN, 12, Font.BOLD, BaseColor.BLUE);
-            info.add("Atendido: " + usuario 
-                    + "\nN° Pedido: " + id_pedido 
-                    + "\nFecha: " + fechaPedido
-                    + "\nSala: " + sala
-                    + "\nN° Mesa: " + num_mesa
-            );
-            Encabezado.addCell(info);
+            // 
             
-            doc.add(Encabezado);
-            doc.add(Chunk.NEWLINE);
-            PdfPTable tabla = new PdfPTable(4);
-            tabla.setWidthPercentage(100);
-            tabla.getDefaultCell().setBorder(0);
-            float[] columnWidths = new float[]{10f, 50f, 15f, 15f};
-            tabla.setWidths(columnWidths);
-            tabla.setHorizontalAlignment(Element.ALIGN_LEFT);
-            PdfPCell c1 = new PdfPCell(new Phrase("Cant.", negrita));
-            PdfPCell c2 = new PdfPCell(new Phrase("Plato.", negrita));
-            PdfPCell c3 = new PdfPCell(new Phrase("P. unt.", negrita));
-            PdfPCell c4 = new PdfPCell(new Phrase("P. Total", negrita));
-            c1.setBorder(Rectangle.NO_BORDER);
-            c2.setBorder(Rectangle.NO_BORDER);
-            c3.setBorder(Rectangle.NO_BORDER);
-            c4.setBorder(Rectangle.NO_BORDER);
-            c1.setBackgroundColor(BaseColor.LIGHT_GRAY);
-            c2.setBackgroundColor(BaseColor.LIGHT_GRAY);
-            c3.setBackgroundColor(BaseColor.LIGHT_GRAY);
-            c4.setBackgroundColor(BaseColor.LIGHT_GRAY);
-            tabla.addCell(c1);
-            tabla.addCell(c2);
-            tabla.addCell(c3);
-            tabla.addCell(c4);
+            
+            
+            
             String product = "SELECT d.* FROM pedidos p INNER JOIN detalle_pedidos d ON p.id = d.id_pedido WHERE p.id = ?";
             try {
                 ps = con.prepareStatement(product);
@@ -273,24 +307,24 @@ public class PedidosDao {
                 rs = ps.executeQuery();
                 while (rs.next()) {
                     double subTotal = rs.getInt("cantidad") * rs.getDouble("precio");
-                    tabla.addCell(rs.getString("cantidad"));
-                    tabla.addCell(rs.getString("nombre"));
-                    tabla.addCell(rs.getString("precio"));
-                    tabla.addCell(String.valueOf(subTotal));
+                    tablapro.addCell(rs.getString("cantidad"));
+                    tablapro.addCell(rs.getString("nombre"));
+                    tablapro.addCell(rs.getString("precio"));
+                    tablapro.addCell(String.valueOf(subTotal));
                 }
 
             } catch (SQLException e) {
                 System.out.println(e.toString());
             }
-            doc.add(tabla);
+            doc.add(tablapro);
             Paragraph agra = new Paragraph();
             agra.add(Chunk.NEWLINE);
-            agra.add("Total S/: " + total);
+            agra.add("Total S/: " + total+"\n\n");
             agra.setAlignment(Element.ALIGN_RIGHT);
             doc.add(agra);
             Paragraph firma = new Paragraph();
             firma.add(Chunk.NEWLINE);
-            firma.add("Cancelacion \n\n");
+            firma.add("Cancelacion \n\n\n");
             firma.add("------------------------------------\n");
             firma.add("Firma \n");
             firma.setAlignment(Element.ALIGN_CENTER);
@@ -313,7 +347,6 @@ public class PedidosDao {
             }
         }
     }
-    
     public boolean actualizarEstado (int id_pedido){
         String sql = "UPDATE pedidos SET estado = ? WHERE id = ?";
         try {
@@ -352,5 +385,6 @@ public class PedidosDao {
        }
        return Lista;
    }
-    
+
+  
 }

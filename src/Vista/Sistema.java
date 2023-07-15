@@ -17,6 +17,9 @@ import Modelo.Salas;
 import Modelo.SalasDao;
 import Modelo.Tables;
 import Modelo.login;
+import Reportes.Excel;
+import Reportes.Grafico;
+import static com.sun.xml.internal.ws.streaming.XMLStreamReaderUtil.close;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Image;
@@ -24,7 +27,9 @@ import java.awt.event.ActionEvent;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -36,6 +41,7 @@ import javax.swing.table.JTableHeader;
 
 public final class Sistema extends javax.swing.JFrame {
 
+    
     Salas sl = new Salas();
     SalasDao slDao = new SalasDao();
     Config conf = new Config();
@@ -54,13 +60,15 @@ public final class Sistema extends javax.swing.JFrame {
     LoginDao lgDao = new LoginDao();
     int item;
     double Totalpagar = 0.00;
-
+    
+    //Date fechaVenta = new Date();
+    //String fechaActual2 = new SimpleDateFormat("dd/MM/yyyy").format(fechaVenta); 
     Date fechaActual = new Date();
     String fechaFormato = new SimpleDateFormat("yyyy-MM-dd").format(fechaActual);
 
     public Sistema(login priv) {
         initComponents();
-        ImageIcon img = new ImageIcon(getClass().getResource("/Img/logomm.png"));
+        ImageIcon img = new ImageIcon(getClass().getResource("/Img/mmluz.png"));
         Image igmEscalada = img.getImage().getScaledInstance(labelLogo.getWidth(), labelLogo.getHeight(), Image.SCALE_SMOOTH);
         Icon icono = new ImageIcon(igmEscalada);
         labelLogo.setIcon(icono);
@@ -71,6 +79,7 @@ public final class Sistema extends javax.swing.JFrame {
         if (priv.getRol().equals("Asistente")) {
             btnSala.setEnabled(false);
             btnConfig.setEnabled(false);
+            btnUsuarios.setEnabled(false);
             LabelVendedor.setText(priv.getNombre());
         } else {
             LabelVendedor.setText(priv.getNombre());
@@ -158,10 +167,15 @@ public final class Sistema extends javax.swing.JFrame {
         txtNumMesaFinalizar = new javax.swing.JTextField();
         btnPdfPedido = new javax.swing.JButton();
         txtIdHistorialPedido = new javax.swing.JTextField();
+        jButton1 = new javax.swing.JButton();
         jPanel6 = new javax.swing.JPanel();
         jScrollPane5 = new javax.swing.JScrollPane();
         TablePedidos = new javax.swing.JTable();
         jLabel16 = new javax.swing.JLabel();
+        btnGraficar = new javax.swing.JButton();
+        Midate = new com.toedter.calendar.JDateChooser();
+        jLabel2 = new javax.swing.JLabel();
+        jButton3 = new javax.swing.JButton();
         jPanel7 = new javax.swing.JPanel();
         jPanel8 = new javax.swing.JPanel();
         txtIdConfig = new javax.swing.JTextField();
@@ -186,7 +200,6 @@ public final class Sistema extends javax.swing.JFrame {
         jLabel44 = new javax.swing.JLabel();
         jLabel42 = new javax.swing.JLabel();
         jLabel32 = new javax.swing.JLabel();
-        jPanel40 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jPanel12 = new javax.swing.JPanel();
         jScrollPane6 = new javax.swing.JScrollPane();
@@ -229,13 +242,14 @@ public final class Sistema extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Panel de Adminstración");
+        setBackground(new java.awt.Color(102, 102, 102));
         setResizable(false);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jPanel1.setBackground(new java.awt.Color(204, 0, 0));
 
         labelLogo.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        labelLogo.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        labelLogo.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         labelLogo.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 labelLogoMouseClicked(evt);
@@ -350,15 +364,15 @@ public final class Sistema extends javax.swing.JFrame {
         getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 200, 720));
 
         jLabel38.setFont(new java.awt.Font("Zilla Slab", 3, 48)); // NOI18N
-        jLabel38.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Img/titulo.png"))); // NOI18N
+        jLabel38.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Img/mmluzlogin.png"))); // NOI18N
         jLabel38.setText("Restaurante de Mama Luz");
         jLabel38.setFocusable(false);
         jLabel38.setHorizontalTextPosition(javax.swing.SwingConstants.LEFT);
-        getContentPane().add(jLabel38, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 0, 740, 90));
+        getContentPane().add(jLabel38, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 10, 740, 90));
 
         jTabbedPane1.setBackground(new java.awt.Color(255, 255, 255));
 
-        PanelSalas.setBackground(new java.awt.Color(255, 255, 255));
+        PanelSalas.setBackground(new java.awt.Color(153, 153, 153));
         PanelSalas.setLayout(new java.awt.GridLayout(0, 5));
         jScrollPane8.setViewportView(PanelSalas);
 
@@ -379,7 +393,7 @@ public final class Sistema extends javax.swing.JFrame {
 
         jTabbedPane1.addTab("Panel", jPanel9);
 
-        jPanel4.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel4.setBackground(new java.awt.Color(153, 153, 153));
         jPanel4.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         tableSala.setModel(new javax.swing.table.DefaultTableModel(
@@ -506,6 +520,7 @@ public final class Sistema extends javax.swing.JFrame {
 
         jTabbedPane1.addTab("Salas", jPanel4);
 
+        PanelMesas.setBackground(new java.awt.Color(153, 153, 153));
         PanelMesas.setLayout(new java.awt.GridLayout(0, 5));
         jScrollPane9.setViewportView(PanelMesas);
 
@@ -522,11 +537,13 @@ public final class Sistema extends javax.swing.JFrame {
             jPanel22Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel22Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane9, javax.swing.GroupLayout.DEFAULT_SIZE, 564, Short.MAX_VALUE)
+                .addComponent(jScrollPane9, javax.swing.GroupLayout.DEFAULT_SIZE, 567, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
         jTabbedPane1.addTab("Mesas", jPanel22);
+
+        jPanel23.setBackground(new java.awt.Color(153, 153, 153));
 
         jPanel24.setBorder(javax.swing.BorderFactory.createTitledBorder("Platos del Dia"));
 
@@ -567,7 +584,7 @@ public final class Sistema extends javax.swing.JFrame {
         btnAddPlato.setFont(new java.awt.Font("Arial Black", 1, 24)); // NOI18N
         btnAddPlato.setForeground(new java.awt.Color(255, 255, 255));
         btnAddPlato.setText("+");
-        btnAddPlato.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnAddPlato.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         btnAddPlato.setFocusable(false);
         btnAddPlato.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         btnAddPlato.addActionListener(new java.awt.event.ActionListener() {
@@ -632,11 +649,12 @@ public final class Sistema extends javax.swing.JFrame {
             tableMenu.getColumnModel().getColumn(4).setPreferredWidth(60);
         }
 
+        jLabel6.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         jLabel6.setText("Comentario:");
 
         jScrollPane12.setViewportView(txtComentario);
 
-        jLabel11.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        jLabel11.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         jLabel11.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Img/money.png"))); // NOI18N
         jLabel11.setText("Total a Pagar");
 
@@ -652,7 +670,7 @@ public final class Sistema extends javax.swing.JFrame {
         });
 
         jButton2.setText("Agregar");
-        jButton2.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        jButton2.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         jButton2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton2ActionPerformed(evt);
@@ -660,7 +678,7 @@ public final class Sistema extends javax.swing.JFrame {
         });
 
         btnEliminarTempPlato.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Img/eliminar.png"))); // NOI18N
-        btnEliminarTempPlato.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnEliminarTempPlato.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         btnEliminarTempPlato.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnEliminarTempPlatoActionPerformed(evt);
@@ -672,25 +690,25 @@ public final class Sistema extends javax.swing.JFrame {
         jPanel23Layout.setHorizontalGroup(
             jPanel23Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel23Layout.createSequentialGroup()
-                .addContainerGap()
                 .addGroup(jPanel23Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel23Layout.createSequentialGroup()
+                        .addGap(12, 12, 12)
                         .addComponent(jLabel6)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jScrollPane12, javax.swing.GroupLayout.PREFERRED_SIZE, 380, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGroup(jPanel23Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(btnEliminarTempPlato, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, 80, Short.MAX_VALUE)))
+                        .addGroup(jPanel23Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(btnEliminarTempPlato, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jButton2, javax.swing.GroupLayout.Alignment.TRAILING)))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel23Layout.createSequentialGroup()
-                        .addGap(0, 3, Short.MAX_VALUE)
+                        .addContainerGap(23, Short.MAX_VALUE)
                         .addGroup(jPanel23Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(jScrollPane11, javax.swing.GroupLayout.PREFERRED_SIZE, 570, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(jPanel23Layout.createSequentialGroup()
                                 .addGroup(jPanel23Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                     .addComponent(txtTempIdSala)
                                     .addComponent(txtTempNumMesa, javax.swing.GroupLayout.DEFAULT_SIZE, 117, Short.MAX_VALUE))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 323, Short.MAX_VALUE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 336, Short.MAX_VALUE)
                                 .addGroup(jPanel23Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel23Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                         .addComponent(jLabel11)
@@ -705,16 +723,18 @@ public final class Sistema extends javax.swing.JFrame {
         jPanel23Layout.setVerticalGroup(
             jPanel23Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel23Layout.createSequentialGroup()
-                .addContainerGap(27, Short.MAX_VALUE)
+                .addContainerGap(30, Short.MAX_VALUE)
                 .addGroup(jPanel23Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(jPanel23Layout.createSequentialGroup()
                         .addGroup(jPanel23Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel6)
                             .addGroup(jPanel23Layout.createSequentialGroup()
                                 .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(18, 18, 18)
                                 .addComponent(btnEliminarTempPlato, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(jScrollPane12, javax.swing.GroupLayout.PREFERRED_SIZE, 83, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(jScrollPane12, javax.swing.GroupLayout.PREFERRED_SIZE, 83, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(jPanel23Layout.createSequentialGroup()
+                                .addGap(24, 24, 24)
+                                .addComponent(jLabel6)))
                         .addGap(18, 18, 18)
                         .addComponent(jScrollPane11, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                         .addGap(18, 18, 18)
@@ -731,11 +751,12 @@ public final class Sistema extends javax.swing.JFrame {
                                 .addComponent(btnGenerarPedido, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addGap(39, 39, 39))
                     .addComponent(jPanel24, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(9, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("Platos", jPanel23);
 
+        jPanel25.setBackground(new java.awt.Color(153, 153, 153));
         jPanel25.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         btnFinalizar.setText("Finalizar");
@@ -751,7 +772,7 @@ public final class Sistema extends javax.swing.JFrame {
         totalFinalizar.setText("00.00");
         jPanel25.add(totalFinalizar, new org.netbeans.lib.awtextra.AbsoluteConstraints(910, 390, 120, -1));
 
-        jLabel17.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        jLabel17.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         jLabel17.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Img/money.png"))); // NOI18N
         jLabel17.setText("Total a Pagar");
         jPanel25.add(jLabel17, new org.netbeans.lib.awtextra.AbsoluteConstraints(900, 340, -1, -1));
@@ -808,6 +829,11 @@ public final class Sistema extends javax.swing.JFrame {
         jPanel25.add(txtSalaFinalizar, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 400, 240, 30));
 
         txtNumMesaFinalizar.setEditable(false);
+        txtNumMesaFinalizar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtNumMesaFinalizarActionPerformed(evt);
+            }
+        });
         jPanel25.add(txtNumMesaFinalizar, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 450, 240, 30));
 
         btnPdfPedido.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Img/pdf.png"))); // NOI18N
@@ -816,14 +842,23 @@ public final class Sistema extends javax.swing.JFrame {
                 btnPdfPedidoActionPerformed(evt);
             }
         });
-        jPanel25.add(btnPdfPedido, new org.netbeans.lib.awtextra.AbsoluteConstraints(780, 440, 110, 40));
+        jPanel25.add(btnPdfPedido, new org.netbeans.lib.awtextra.AbsoluteConstraints(770, 440, 110, 40));
         jPanel25.add(txtIdHistorialPedido, new org.netbeans.lib.awtextra.AbsoluteConstraints(630, 450, 50, -1));
+
+        jButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Img/BoletaEmail.png"))); // NOI18N
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+        jPanel25.add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(770, 380, 110, 40));
 
         jTabbedPane1.addTab("Finalizar Pedido", jPanel25);
 
-        jPanel6.setBackground(new java.awt.Color(204, 204, 204));
+        jPanel6.setBackground(new java.awt.Color(153, 153, 153));
         jPanel6.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
+        TablePedidos.setBackground(new java.awt.Color(204, 204, 204));
         TablePedidos.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
@@ -840,7 +875,7 @@ public final class Sistema extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
-        TablePedidos.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        TablePedidos.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         TablePedidos.setRowHeight(23);
         TablePedidos.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -861,14 +896,34 @@ public final class Sistema extends javax.swing.JFrame {
 
         jPanel6.add(jScrollPane5, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 90, 1020, 480));
 
-        jLabel16.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
+        jLabel16.setFont(new java.awt.Font("Times New Roman", 1, 36)); // NOI18N
         jLabel16.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel16.setText("Historial Pedidos");
-        jPanel6.add(jLabel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(470, 50, 280, -1));
+        jPanel6.add(jLabel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 40, 280, -1));
+
+        btnGraficar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Img/Grafico1.png"))); // NOI18N
+        btnGraficar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnGraficarActionPerformed(evt);
+            }
+        });
+        jPanel6.add(btnGraficar, new org.netbeans.lib.awtextra.AbsoluteConstraints(790, 30, 100, 50));
+        jPanel6.add(Midate, new org.netbeans.lib.awtextra.AbsoluteConstraints(900, 50, 150, 30));
+
+        jLabel2.setText("Seleccionar:");
+        jPanel6.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(900, 30, -1, -1));
+
+        jButton3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Img/EXCEL2.png"))); // NOI18N
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
+        jPanel6.add(jButton3, new org.netbeans.lib.awtextra.AbsoluteConstraints(660, 30, 110, 50));
 
         jTabbedPane1.addTab("Historial Pedidos", jPanel6);
 
-        jPanel7.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel7.setBackground(new java.awt.Color(153, 153, 153));
         jPanel7.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jPanel8.setBackground(new java.awt.Color(204, 204, 204));
@@ -901,7 +956,6 @@ public final class Sistema extends javax.swing.JFrame {
         txtMensaje.setBorder(null);
         jPanel8.add(txtMensaje, new org.netbeans.lib.awtextra.AbsoluteConstraints(409, 320, -1, 30));
 
-        btnActualizarConfig.setBackground(new java.awt.Color(255, 255, 255));
         btnActualizarConfig.setFont(new java.awt.Font("Times New Roman", 1, 13)); // NOI18N
         btnActualizarConfig.setText("Modificar");
         btnActualizarConfig.setBorder(null);
@@ -1028,28 +1082,16 @@ public final class Sistema extends javax.swing.JFrame {
 
         jPanel7.add(jPanel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 90, 400, 470));
 
-        jLabel32.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
+        jLabel32.setFont(new java.awt.Font("Times New Roman", 1, 36)); // NOI18N
         jLabel32.setText("DATOS DE LA EMPRESA");
-        jPanel7.add(jLabel32, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 40, -1, -1));
-
-        javax.swing.GroupLayout jPanel40Layout = new javax.swing.GroupLayout(jPanel40);
-        jPanel40.setLayout(jPanel40Layout);
-        jPanel40Layout.setHorizontalGroup(
-            jPanel40Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 100, Short.MAX_VALUE)
-        );
-        jPanel40Layout.setVerticalGroup(
-            jPanel40Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 10, Short.MAX_VALUE)
-        );
-
-        jPanel7.add(jPanel40, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 160, -1, 10));
+        jPanel7.add(jLabel32, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 30, -1, -1));
 
         jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Img/ajuste2.png"))); // NOI18N
         jPanel7.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 90, 380, 470));
 
         jTabbedPane1.addTab("Datos de la Empresa", jPanel7);
 
+        jPanel12.setBackground(new java.awt.Color(153, 153, 153));
         jPanel12.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         TableUsuarios.setModel(new javax.swing.table.DefaultTableModel(
@@ -1077,7 +1119,7 @@ public final class Sistema extends javax.swing.JFrame {
         jPanel15.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel34.setFont(new java.awt.Font("Times New Roman", 3, 14)); // NOI18N
-        jLabel34.setText("Correo Electrónico");
+        jLabel34.setText("Usuario");
         jPanel15.add(jLabel34, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 102, -1, -1));
 
         jLabel35.setFont(new java.awt.Font("Times New Roman", 3, 14)); // NOI18N
@@ -1183,6 +1225,8 @@ public final class Sistema extends javax.swing.JFrame {
         jPanel12.add(jPanel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 40, 360, 520));
 
         jTabbedPane1.addTab("Usuarios", jPanel12);
+
+        jPanel2.setBackground(new java.awt.Color(153, 153, 153));
 
         jPanel11.setBackground(new java.awt.Color(204, 204, 204));
         jPanel11.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -1496,10 +1540,6 @@ public final class Sistema extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_btnActualizarConfigActionPerformed
 
-    private void txtIdConfigActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtIdConfigActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtIdConfigActionPerformed
-
     private void TablePedidosMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_TablePedidosMouseClicked
         // TODO add your handling code here:
         int fila = TablePedidos.rowAtPoint(evt.getPoint());
@@ -1521,7 +1561,7 @@ public final class Sistema extends javax.swing.JFrame {
             txtIdHistorialPedido.setText("");
         }
     }//GEN-LAST:event_btnPdfPedidoActionPerformed
-
+ 
     private void btnFinalizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFinalizarActionPerformed
         // TODO add your handling code here:
         int pregunta = JOptionPane.showConfirmDialog(null, "Esta seguro de finalizar");
@@ -1673,9 +1713,35 @@ public final class Sistema extends javax.swing.JFrame {
         txtMesas.setText(tableSala.getValueAt(fila, 2).toString());
     }//GEN-LAST:event_tableSalaMouseClicked
 
+    private void btnGraficarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGraficarActionPerformed
+        // TODO add your handling code here:
+        String fechaReporte = new SimpleDateFormat("dd/MM/yyyy").format(Midate.getDate());
+        Grafico.Graficar(fechaReporte);
+    }//GEN-LAST:event_btnGraficarActionPerformed
+
+    private void txtNumMesaFinalizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtNumMesaFinalizarActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtNumMesaFinalizarActionPerformed
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        // TODO add your handling code here:
+        Excel.reporte();
+    }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void txtIdConfigActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtIdConfigActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtIdConfigActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        Envio_Correo newframe = new Envio_Correo();
+        newframe.setVisible(true);
+        
+    }//GEN-LAST:event_jButton1ActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel LabelVendedor;
+    private com.toedter.calendar.JDateChooser Midate;
     private javax.swing.JPanel PanelMesas;
     private javax.swing.JPanel PanelSalas;
     private javax.swing.JTable TablePedidos;
@@ -1691,6 +1757,7 @@ public final class Sistema extends javax.swing.JFrame {
     private javax.swing.JButton btnEliminarTempPlato;
     private javax.swing.JButton btnFinalizar;
     private javax.swing.JButton btnGenerarPedido;
+    private javax.swing.JButton btnGraficar;
     private javax.swing.JButton btnGuardarPlato;
     private javax.swing.JButton btnIniciar;
     private javax.swing.JButton btnNuevoPlato;
@@ -1702,13 +1769,16 @@ public final class Sistema extends javax.swing.JFrame {
     private javax.swing.JButton btnUsuarios;
     private javax.swing.JButton btnVentas;
     private javax.swing.JComboBox<String> cbxRol;
+    private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
+    private javax.swing.JButton jButton3;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel16;
     private javax.swing.JLabel jLabel17;
     private javax.swing.JLabel jLabel18;
     private javax.swing.JLabel jLabel19;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel23;
     private javax.swing.JLabel jLabel25;
     private javax.swing.JLabel jLabel27;
@@ -1755,7 +1825,6 @@ public final class Sistema extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel38;
     private javax.swing.JPanel jPanel39;
     private javax.swing.JPanel jPanel4;
-    private javax.swing.JPanel jPanel40;
     private javax.swing.JPanel jPanel41;
     private javax.swing.JPanel jPanel42;
     private javax.swing.JPanel jPanel43;
@@ -1992,6 +2061,9 @@ public final class Sistema extends javax.swing.JFrame {
         ped.setNum_mesa(num_mesa);
         ped.setTotal(monto);
         ped.setUsuario(LabelVendedor.getText());
+        ped.setFecha(fechaFormato);
+        
+        
         pedDao.RegistrarPedido(ped);
     }
 
@@ -2035,5 +2107,6 @@ public final class Sistema extends javax.swing.JFrame {
         txtNumMesaFinalizar.setText("" + ped.getNum_mesa());
         txtIdPedido.setText("" + ped.getId());
     }
+    
 
 }
